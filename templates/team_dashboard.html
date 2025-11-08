@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ team.name }} Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>{{ team.name }} - Team Dashboard</h2>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Matches Played</h3>
+        <p class="stat-value">{{ team_stats.matches_played or 0 }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Total Runs</h3>
+        <p class="stat-value">{{ team_stats.total_runs or 0 }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Total Wickets</h3>
+        <p class="stat-value">{{ team_stats.total_wickets or 0 }}</p>
+    </div>
+    <div class="stat-card">
+        <h3>Avg Runs/Innings</h3>
+        <p class="stat-value">{{ team_stats.avg_runs_per_innings or 0 }}</p>
+    </div>
+</div>
+
+<div class="charts-grid">
+    <div class="card">
+        <div id="runsChart"></div>
+    </div>
+    <div class="card">
+        <div id="wicketsChart"></div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Team Players</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Player Name</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players %}
+                <tr>
+                    <td>{{ player.name }}</td>
+                    <td>{{ player.role }}</td>
+                    <td>
+                        <a href="{{ url_for('player_dashboard', player_id=player.id) }}" class="btn btn-small">View Stats</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const runsData = {{ runs_chart|safe }};
+    const wicketsData = {{ wickets_chart|safe }};
+    
+    Plotly.newPlot('runsChart', runsData.data, runsData.layout);
+    Plotly.newPlot('wicketsChart', wicketsData.data, wicketsData.layout);
+</script>
+{% endblock %}

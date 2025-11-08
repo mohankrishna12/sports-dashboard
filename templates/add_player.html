@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Add Player - Cricket Dashboard{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card">
+        <h2>Add New Player</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">Player Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="team_id">Team:</label>
+                <select id="team_id" name="team_id" required>
+                    <option value="">Select Team</option>
+                    {% for team in teams %}
+                    <option value="{{ team.id }}">{{ team.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="role">Role:</label>
+                <select id="role" name="role" required>
+                    <option value="">Select Role</option>
+                    <option value="Batsman">Batsman</option>
+                    <option value="Bowler">Bowler</option>
+                    <option value="All-rounder">All-rounder</option>
+                    <option value="Wicket-keeper">Wicket-keeper</option>
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn">Add Player</button>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

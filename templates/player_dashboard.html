@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}{{ player.name }} Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>{{ player.name }} - Player Dashboard</h2>
+    <p class="subtitle">{{ player.team_name }} | {{ player.role }}</p>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+</div>
+
+<div class="player-stats">
+    <div class="card">
+        <h3>Batting Statistics</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">Innings:</span>
+                <span class="stat-value">{{ batting_stats.innings or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total Runs:</span>
+                <span class="stat-value">{{ batting_stats.total_runs or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Balls Faced:</span>
+                <span class="stat-value">{{ batting_stats.total_balls or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Highest Score:</span>
+                <span class="stat-value">{{ batting_stats.highest_score or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Average:</span>
+                <span class="stat-value">{{ batting_stats.average or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Strike Rate:</span>
+                <span class="stat-value">{{ batting_stats.strike_rate or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Fours:</span>
+                <span class="stat-value">{{ batting_stats.total_fours or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Sixes:</span>
+                <span class="stat-value">{{ batting_stats.total_sixes or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Not Outs:</span>
+                <span class="stat-value">{{ batting_stats.not_outs or 0 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Bowling Statistics</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">Innings:</span>
+                <span class="stat-value">{{ bowling_stats.innings or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Overs:</span>
+                <span class="stat-value">{{ bowling_stats.total_overs or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Runs Conceded:</span>
+                <span class="stat-value">{{ bowling_stats.runs_conceded or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Wickets:</span>
+                <span class="stat-value">{{ bowling_stats.total_wickets or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Average:</span>
+                <span class="stat-value">{{ bowling_stats.average or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Economy:</span>
+                <span class="stat-value">{{ bowling_stats.economy or 0 }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Best Bowling:</span>
+                <span class="stat-value">{{ bowling_stats.best_bowling or 0 }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="charts-grid">
+    {% if batting_pie %}
+    <div class="card">
+        <div id="battingPie"></div>
+    </div>
+    {% endif %}
+    
+    {% if sr_gauge %}
+    <div class="card">
+        <div id="srGauge"></div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    {% if batting_pie %}
+    const battingPieData = {{ batting_pie|safe }};
+    Plotly.newPlot('battingPie', battingPieData.data, battingPieData.layout);
+    {% endif %}
+    
+    {% if sr_gauge %}
+    const srGaugeData = {{ sr_gauge|safe }};
+    Plotly.newPlot('srGauge', srGaugeData.data, srGaugeData.layout);
+    {% endif %}
+</script>
+{% endblock %}

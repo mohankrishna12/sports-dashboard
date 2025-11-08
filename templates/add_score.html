@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Add Score - Cricket Dashboard{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card">
+        <h2>Add Match Score</h2>
+        <form method="POST" id="scoreForm">
+            <h3>Match Details</h3>
+            
+            <div class="form-group">
+                <label>
+                    <input type="radio" name="new_match" value="yes" checked onchange="toggleMatchFields()"> New Match
+                </label>
+                <label>
+                    <input type="radio" name="new_match" value="no" onchange="toggleMatchFields()"> Existing Match
+                </label>
+            </div>
+            
+            <div id="newMatchFields">
+                <div class="form-group">
+                    <label for="team1_id">Team 1:</label>
+                    <select id="team1_id" name="team1_id">
+                        <option value="">Select Team</option>
+                        {% for team in teams %}
+                        <option value="{{ team.id }}">{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="team2_id">Team 2:</label>
+                    <select id="team2_id" name="team2_id">
+                        <option value="">Select Team</option>
+                        {% for team in teams %}
+                        <option value="{{ team.id }}">{{ team.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="match_date">Match Date:</label>
+                    <input type="date" id="match_date" name="match_date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="venue">Venue:</label>
+                    <input type="text" id="venue" name="venue">
+                </div>
+            </div>
+            
+            <div id="existingMatchField" style="display: none;">
+                <div class="form-group">
+                    <label for="match_id">Select Match:</label>
+                    <select id="match_id" name="match_id">
+                        <option value="">Select Match</option>
+                        {% for match in matches %}
+                        <option value="{{ match.id }}">{{ match.team1_name }} vs {{ match.team2_name }} - {{ match.match_date }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <h3>Innings Details</h3>
+            
+            <div class="form-group">
+                <label for="batting_team_id">Batting Team:</label>
+                <select id="batting_team_id" name="batting_team_id" required onchange="loadBattingPlayers()">
+                    <option value="">Select Team</option>
+                    {% for team in teams %}
+                    <option value="{{ team.id }}">{{ team.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="bowling_team_id">Bowling Team:</label>
+                <select id="bowling_team_id" name="bowling_team_id" required onchange="loadBowlingPlayers()">
+                    <option value="">Select Team</option>
+                    {% for team in teams %}
+                    <option value="{{ team.id }}">{{ team.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="innings_number">Innings Number:</label>
+                <select id="innings_number" name="innings_number" required>
+                    <option value="1">1st Innings</option>
+                    <option value="2">2nd Innings</option>
+                    <option value="3">3rd Innings</option>
+                    <option value="4">4th Innings</option>
+                </select>
+            </div>
+            
+            <h3>Batting Scores</h3>
+            <div id="battingScores">
+                <div class="batting-entry">
+                    <button type="button" class="btn btn-small" onclick="addBattingEntry()">+ Add Batsman</button>
+                </div>
+            </div>
+            
+            <h3>Bowling Figures</h3>
+            <div id="bowlingFigures">
+                <div class="bowling-entry">
+                    <button type="button" class="btn btn-small" onclick="addBowlingEntry()">+ Add Bowler</button>
+                </div>
+            </div>
+            
+            <input type="hidden" name="batting_count" id="batting_count" value="0">
+            <input type="hidden" name="bowling_count" id="bowling_count" value="0">
+            
+            <div class="form-actions">
+                <button type="submit" class="btn">Save Score</button>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let battingCount = 0;
+let bowlingCount = 0;
+let battingPlayers = [];
+let bowlingPlayers = [];
+
+function toggleMatchFields() {
+    const newMatch = document.querySelector('input[name="new_match"]:checked').value === 'yes';
+    document.getElementById('newMatchFields').style.display = newMatch ? 'block' : 'none';
+    document.getElementById('existingMatchField').style.display = newMatch ? 'none' : 'block';
+}
+
+async function loadBattingPlayers() {
+    const teamId = document.getElementById('batting_team_id').value;
+    if (teamId) {
+        const response = await fetch(`/api/players/${teamId}`);
+        battingPlayers = await response.json();
+    }
+}
+
+async function loadBowlingPlayers() {
+    const teamId = document.getElementById('bowling_team_id').value;
+    if (teamId) {
+        const response = await fetch(`/api/players/${teamId}`);
+        bowlingPlayers = await response.json();
+    }
+}
+
+function addBattingEntry() {
+    const container = document.getElementById('battingScores');
+    const entry = document.createElement('div');
+    entry.className = 'score-entry';
+    entry.innerHTML = `
+        <h4>Batsman ${battingCount + 1}</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Player:</label>
+                <select name="player_id_${battingCount}" required>
+                    <option value="">Select Player</option>
+                    ${battingPlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Runs:</label>
+                <input type="number" name="runs_${battingCount}" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label>Balls:</label>
+                <input type="number" name="balls_${battingCount}" value="0" min="0">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>4s:</label>
+                <input type="number" name="fours_${battingCount}" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label>6s:</label>
+                <input type="number" name="sixes_${battingCount}" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label>Partnership:</label>
+                <input type="number" name="partnership_${battingCount}" value="0" min="0">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Out:</label>
+                <select name="is_out_${battingCount}" onchange="toggleDismissal(${battingCount})">
+                    <option value="no">Not Out</option>
+                    <option value="yes">Out</option>
+                </select>
+            </div>
+            <div class="form-group dismissal-fields" id="dismissal_${battingCount}" style="display: none;">
+                <label>Dismissal:</label>
+                <select name="dismissal_type_${battingCount}">
+                    <option value="">Select Type</option>
+                    <option value="Bowled">Bowled</option>
+                    <option value="Caught">Caught</option>
+                    <option value="LBW">LBW</option>
+                    <option value="Run Out">Run Out</option>
+                    <option value="Stumped">Stumped</option>
+                    <option value="Hit Wicket">Hit Wicket</option>
+                </select>
+            </div>
+            <div class="form-group dismissal-fields" id="bowler_${battingCount}" style="display: none;">
+                <label>Bowler:</label>
+                <select name="bowler_id_${battingCount}">
+                    <option value="">Select Bowler</option>
+                    ${bowlingPlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group dismissal-fields" id="fielder_${battingCount}" style="display: none;">
+                <label>Fielder:</label>
+                <select name="fielder_id_${battingCount}">
+                    <option value="">Select Fielder</option>
+                    ${bowlingPlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                </select>
+            </div>
+        </div>
+        <hr>
+    `;
+    container.insertBefore(entry, container.lastElementChild);
+    battingCount++;
+    document.getElementById('batting_count').value = battingCount;
+}
+
+function addBowlingEntry() {
+    const container = document.getElementById('bowlingFigures');
+    const entry = document.createElement('div');
+    entry.className = 'score-entry';
+    entry.innerHTML = `
+        <h4>Bowler ${bowlingCount + 1}</h4>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Bowler:</label>
+                <select name="bowler_pid_${bowlingCount}" required>
+                    <option value="">Select Bowler</option>
+                    ${bowlingPlayers.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Overs:</label>
+                <input type="number" step="0.1" name="overs_${bowlingCount}" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label>Maidens:</label>
+                <input type="number" name="maidens_${bowlingCount}" value="0" min="0">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Runs:</label>
+                <input type="number" name="runs_conceded_${bowlingCount}" value="0" min="0">
+            </div>
+            <div class="form-group">
+                <label>Wickets:</label>
+                <input type="number" name="wickets_${bowlingCount}" value="0" min="0">
+            </div>
+        </div>
+        <hr>
+    `;
+    container.insertBefore(entry, container.lastElementChild);
+    bowlingCount++;
+    document.getElementById('bowling_count').value = bowlingCount;
+}
+
+function toggleDismissal(index) {
+    const isOut = document.querySelector(`select[name="is_out_${index}"]`).value === 'yes';
+    const fields = document.querySelectorAll(`#dismissal_${index}, #bowler_${index}, #fielder_${index}`);
+    fields.forEach(field => {
+        field.style.display = isOut ? 'block' : 'none';
+    });
+}
+</script>
+{% endblock %}

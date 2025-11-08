@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Cricket Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <section class="card">
+        <h2>Teams</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Team Name</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team in teams %}
+                    <tr>
+                        <td>{{ team.name }}</td>
+                        <td>{{ team.created_at[:10] }}</td>
+                        <td>
+                            <a href="{{ url_for('team_dashboard', team_id=team.id) }}" class="btn btn-small">View Dashboard</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">No teams added yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Players</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player Name</th>
+                        <th>Team</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in players %}
+                    <tr>
+                        <td>{{ player.name }}</td>
+                        <td>{{ player.team_name }}</td>
+                        <td>{{ player.role }}</td>
+                        <td>
+                            <a href="{{ url_for('player_dashboard', player_id=player.id) }}" class="btn btn-small">View Stats</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">No players added yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card full-width">
+        <h2>Recent Matches</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Teams</th>
+                        <th>Venue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for match in matches %}
+                    <tr>
+                        <td>{{ match.match_date }}</td>
+                        <td>{{ match.team1_name }} vs {{ match.team2_name }}</td>
+                        <td>{{ match.venue }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">No matches recorded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

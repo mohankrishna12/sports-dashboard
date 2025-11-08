@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Add Team - Cricket Dashboard{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card">
+        <h2>Add New Team</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">Team Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn">Add Team</button>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
